@@ -57,6 +57,8 @@ function addMarkersToMap(markers) {
         .attr("dy", ".35em")
         .attr("text-anchor", "middle")
         .text(data => `${data.stayDuration} min`);
+
+    showOrHideCircleLabels();
 }
 
 
@@ -67,11 +69,24 @@ function update() {
 
     d3.selectAll("circle")
         .attr("r", getCircleRadius());
+
+    showOrHideCircleLabels();
+}
+
+function showOrHideCircleLabels() {
+    if (getCurrentZoomLevel() < 13) {
+        d3.selectAll("text").style("opacity", 0);
+    } else {
+        d3.selectAll("text").style("opacity", 1);
+    }
 }
 
 function getCircleRadius() {
-    const currentZoomLevel = map._zoom;
-    return 4 * currentZoomLevel + 1;
+    return 4 * getCurrentZoomLevel() + 1;
+}
+
+function getCurrentZoomLevel() {
+    return map._zoom;
 }
 
 // If the user change the map (zoom or drag), I update circle position:
