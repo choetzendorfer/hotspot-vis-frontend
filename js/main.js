@@ -20,7 +20,13 @@ d3.json("data/positions.json").then(data => {
     .sort((a, b) => a.minutesSpentInCluster - b.minutesSpentInCluster) //Sort to ensure the hotspot with the highest duration is drawn last 
     .map(item => {
         const firstPosition = item.positions[0];
-        return {long: firstPosition.longitude, lat: firstPosition.latitude, stayDuration: item.minutesSpentInCluster, timeStatistics: item.timeStatistics };
+        const timeStatistics = item.timeStatistics.map(entry => {
+            return {
+                date: new Date(entry.date).toDateString(),
+                stayDurationInMinutes: entry.stayDurationInMinutes
+            };
+        });
+        return {long: firstPosition.longitude, lat: firstPosition.latitude, stayDuration: item.minutesSpentInCluster, timeStatistics: timeStatistics };
     });
 
     //addMarkersToMap(markers);
@@ -68,7 +74,11 @@ function createAndShowPieChart(data) {
 
     const arc = d3.arc()
         .innerRadius(0)
-        .outerRadius(radius * 2);
+        .outerRadius(radius * 0.9);
+
+    var outerArc = d3.arc()
+        .innerRadius(radius * 0.9)
+        .outerRadius(radius * 0.9)
 
     const pie = d3.pie().value(data => data.stayDurationInMinutes);
 
@@ -86,6 +96,40 @@ function createAndShowPieChart(data) {
         .attr("class", "slice")
         .attr("d", arc)
         .style("fill", (d, i) => colorScale(d.data.stayDurationInMinutes));
+
+    pies.selectAll(".pie-chart-label-line")
+        .data(data => pie(data.timeStatistics))
+        .enter()
+        .append('polyline')
+        .attr("class", "pie-chart-label-line")
+        .attr("stroke", "black")
+        .style("fill", "none")
+        .attr("stroke-width", 1)
+        .attr('points', function(d) {
+            var posA = arc.centroid(d) // line insertion in the slice
+            var posB = outerArc.centroid(d) // line break: we use the other arc generator that has been built only for that
+            var posC = outerArc.centroid(d); // Label position = almost the same as posB
+            var midangle = d.startAngle + (d.endAngle - d.startAngle) / 2 // we need the angle to see if the X position will be at the extreme right or extreme left
+            posC[0] = radius * 0.95 * (midangle < Math.PI ? 1 : -1); // multiply by 1 or -1 to put it on the right or on the left
+            return [posA, posB, posC]
+        });
+
+    pies.selectAll(".pie-chart-label")
+        .data(data => pie(data.timeStatistics))
+        .enter()
+        .append("text")
+        .attr("class", "pie-chart-label")
+        .text( function(d) { return d.data.date } )
+        .attr('transform', function(d) {
+            var pos = outerArc.centroid(d);
+            var midangle = d.startAngle + (d.endAngle - d.startAngle) / 2
+            pos[0] = radius * 0.99 * (midangle < Math.PI ? 1 : -1);
+            return 'translate(' + pos + ')';
+        })
+        .style('text-anchor', function(d) {
+            var midangle = d.startAngle + (d.endAngle - d.startAngle) / 2
+            return (midangle < Math.PI ? 'start' : 'end')
+        });
 }
 
 
