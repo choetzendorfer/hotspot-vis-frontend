@@ -28,7 +28,13 @@ d3.json("data/positions.json").then(data => {
                 stayDurationInMinutes: entry.stayDurationInMinutes
             };
         });
-        return {long: firstPosition.longitude, lat: firstPosition.latitude, stayDuration: item.minutesSpentInCluster, timeStatistics: timeStatistics };
+        return {
+            long: firstPosition.longitude, 
+            lat: firstPosition.latitude, 
+            stayDuration: item.minutesSpentInCluster, 
+            timeStatistics: timeStatistics,
+            dominantActivityLevel: item.dominantActivityLevel,
+        };
     });
 
     addHotspotCirclesToMap(visualizationData);
@@ -66,6 +72,24 @@ function addHotspotCirclesToMap(data) {
         .attr("text-anchor", "middle")
         .attr("opacity", 0)
         .text(data => `${data.stayDuration} min`);
+
+    /* Create the image for activity level for each block */
+    circleGroup.append("image")
+        .attr("class", "activity-image")
+        .attr("xlink:href", data => {
+            if (data.dominantActivityLevel == 0) {
+                return "../assets/rest.png";
+            } else if (data.dominantActivityLevel == 1) {
+                return "../assets/low-activity.png";
+            } else {
+                return "../assets/active.png";
+            }
+        })
+        .attr("x", -16)
+        .attr("y", "1.9em")
+        .attr("opacity", 0)
+        .attr("width", 32)
+        .attr("height", 32);
 }
 
 function createTimeDistributionChart(data) {
@@ -150,11 +174,13 @@ function update() {
 function showDetails() {
     d3.selectAll("text").transition(500).style("opacity", 1);
     d3.selectAll(".pie").transition(500).style("opacity", 1);
+    d3.selectAll(".activity-image").transition(500).style("opacity", 1);
 }
 
 function hideDetails() {
     d3.selectAll("text").style("opacity", 0);
     d3.selectAll(".pie").style("opacity", 0);
+    d3.selectAll(".activity-image").style("opacity", 0);
 }
 
 function updatePositionsAndSizes() {
