@@ -1,3 +1,5 @@
+const DETAIL_ZOOM_LEVEL = 13;
+
 // mapid is the id of the div where the map will appear
 var map = L
   .map('map')
@@ -16,7 +18,7 @@ L.svg().addTo(map);
 const svg = d3.select("#map").select("svg");
 
 d3.json("data/positions.json").then(data => {
-    const markers = data
+    const visualizationData = data
     .sort((a, b) => a.minutesSpentInCluster - b.minutesSpentInCluster) //Sort to ensure the hotspot with the highest duration is drawn last 
     .map(item => {
         const firstPosition = item.positions[0];
@@ -29,11 +31,11 @@ d3.json("data/positions.json").then(data => {
         return {long: firstPosition.longitude, lat: firstPosition.latitude, stayDuration: item.minutesSpentInCluster, timeStatistics: timeStatistics };
     });
 
-    //addMarkersToMap(markers);
-    createAndShowPieChart(markers);
+    addHotspotCirclesToMap(visualizationData);
+    createTimeDistributionChart(visualizationData);
 });
 
-function addMarkersToMap(data) {
+function addHotspotCirclesToMap(data) {
     const colorScale = d3.scaleLinear()
         .domain([0, d3.max(data.map(marker => marker.stayDuration))])
         .range(["pink", "red"]);
@@ -57,28 +59,26 @@ function addMarkersToMap(data) {
         .attr("fill", data => colorScale(data.stayDuration))
         .attr("fill-opacity", .8);
 
-
     /* Create the text for each block */
     circleGroup.append("text")
         .attr("x", 0)
         .attr("dy", ".35em")
         .attr("text-anchor", "middle")
+        .attr("opacity", 0)
         .text(data => `${data.stayDuration} min`);
-
-    showOrHideCircleLabels();
 }
 
-function createAndShowPieChart(data) {
+function createTimeDistributionChart(data) {
     const radius = getCircleRadius();
     const colorScale = d3.scaleOrdinal(['#4daf4a','#377eb8','#ff7f00','#984ea3','#e41a1c']);
 
     const arc = d3.arc()
-        .innerRadius(0)
-        .outerRadius(radius * 0.9);
+        .innerRadius(radius * 1.7)
+        .outerRadius(radius * 2.5);
 
     var outerArc = d3.arc()
-        .innerRadius(radius * 0.9)
-        .outerRadius(radius * 0.9)
+        .innerRadius(radius * 2.9)
+        .outerRadius(radius * 2.9)
 
     const pie = d3.pie().value(data => data.stayDurationInMinutes);
 
@@ -87,6 +87,7 @@ function createAndShowPieChart(data) {
         .enter()
         .append("g")
         .attr("class", "pie")
+        .attr("opacity", 0)
         .attr("transform", data => `translate(${map.latLngToLayerPoint([data.lat, data.long]).x}, ${map.latLngToLayerPoint([data.lat, data.long]).y})`);
 
     pies.selectAll(".slice")
@@ -110,7 +111,7 @@ function createAndShowPieChart(data) {
             var posB = outerArc.centroid(d) // line break: we use the other arc generator that has been built only for that
             var posC = outerArc.centroid(d); // Label position = almost the same as posB
             var midangle = d.startAngle + (d.endAngle - d.startAngle) / 2 // we need the angle to see if the X position will be at the extreme right or extreme left
-            posC[0] = radius * 0.95 * (midangle < Math.PI ? 1 : -1); // multiply by 1 or -1 to put it on the right or on the left
+            posC[0] = radius * 2.95 * (midangle < Math.PI ? 1 : -1); // multiply by 1 or -1 to put it on the right or on the left
             return [posA, posB, posC]
         });
 
@@ -123,7 +124,7 @@ function createAndShowPieChart(data) {
         .attr('transform', function(d) {
             var pos = outerArc.centroid(d);
             var midangle = d.startAngle + (d.endAngle - d.startAngle) / 2
-            pos[0] = radius * 0.99 * (midangle < Math.PI ? 1 : -1);
+            pos[0] = radius * 2.99 * (midangle < Math.PI ? 1 : -1);
             return 'translate(' + pos + ')';
         })
         .style('text-anchor', function(d) {
@@ -135,31 +136,38 @@ function createAndShowPieChart(data) {
 
 // Function that update circle position if something change
 function update() {
-    updateCircleAppearance();
-    updatePieChartAppearance();
+    updatePositionsAndSizes();
+
+    if (getCurrentZoomLevel() > DETAIL_ZOOM_LEVEL) {
+        // Show details
+        showDetails();
+    } else {
+        // Hide details
+        hideDetails();
+    }
 }
 
-function updateCircleAppearance() {
+function showDetails() {
+    d3.selectAll("text").transition(500).style("opacity", 1);
+    d3.selectAll(".pie").transition(500).style("opacity", 1);
+}
+
+function hideDetails() {
+    d3.selectAll("text").style("opacity", 0);
+    d3.selectAll(".pie").style("opacity", 0);
+}
+
+function updatePositionsAndSizes() {
+    // Hotspot circle positions
     d3.selectAll("g.circle")
         .attr("transform", data => `translate(${map.latLngToLayerPoint([data.lat, data.long]).x}, ${map.latLngToLayerPoint([data.lat, data.long]).y})`);
 
     d3.selectAll("circle")
         .attr("r", getCircleRadius());
 
-    showOrHideCircleLabels();
-}
-
-function updatePieChartAppearance() {
+    // Time distribution positions
     d3.selectAll(".pie")
     .attr("transform", data => `translate(${map.latLngToLayerPoint([data.lat, data.long]).x}, ${map.latLngToLayerPoint([data.lat, data.long]).y})`);
-}
-
-function showOrHideCircleLabels() {
-    if (getCurrentZoomLevel() < 13) {
-        d3.selectAll("text").style("opacity", 0);
-    } else {
-        d3.selectAll("text").style("opacity", 1);
-    }
 }
 
 function getCircleRadius() {
@@ -171,4 +179,4 @@ function getCurrentZoomLevel() {
 }
 
 // If the user change the map (zoom or drag), I update circle position:
-map.on("moveend", update)
+map.on("moveend", update);
