@@ -27,7 +27,8 @@ d3.json("data/positions.json").then(data => {
                 date: new Date(entry.date).toDateString(),
                 stayDurationInMinutes: entry.stayDurationInMinutes
             };
-        });
+        })
+        .slice(0, 7); // TODO: REMOVE AGAIN - we are limiting to 7 entries/days now
         return {
             long: firstPosition.longitude, 
             lat: firstPosition.latitude, 
@@ -66,12 +67,21 @@ function addHotspotCirclesToMap(data) {
         .attr("fill-opacity", .8);
 
     /* Create the text for each block */
-    circleGroup.append("text")
+    const text = circleGroup.append("text")
         .attr("x", 0)
-        .attr("dy", ".35em")
         .attr("text-anchor", "middle")
-        .attr("opacity", 0)
-        .text(data => `${data.stayDuration} min`);
+        .attr("opacity", 0);
+
+    text.append("tspan")
+        .attr("class", "duration-title")
+        .attr("x", 0)
+        .attr("dy", "-0.9em")
+        .text(data => `~${data.stayDuration} min`);
+
+    text.append("tspan")
+        .attr("x", 0)
+        .attr("dy", "1.35em")
+        .text("Stay duration");
 
     /* Create the image for activity level for each block */
     circleGroup.append("image")
@@ -120,6 +130,8 @@ function createTimeDistributionChart(data) {
         .append("path")
         .attr("class", "slice")
         .attr("d", arc)
+        .attr("stroke", "black")
+        .attr("stroke-width", 0.7)
         .style("fill", (d, i) => colorScale(d.data.stayDurationInMinutes));
 
     pies.selectAll(".pie-chart-label-line")

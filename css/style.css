@@ -1,1 +1,12 @@
 #map { height: 1200px }
+
+tspan.duration-title {
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.pie-chart-label {
+    font-weight: bold;
+    font-size: 13px;
+    text-shadow: 2px 2px 12px #FF00B7;
+}
