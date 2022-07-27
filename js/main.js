@@ -114,7 +114,7 @@ function createTimeDistributionChart(data) {
         .innerRadius(radius * 2.9)
         .outerRadius(radius * 2.9)
 
-    const pie = d3.pie().value(data => data.stayDurationInMinutes);
+    const pie = d3.pie().value(1); // Value 1 ensures that the segments are equally distributed
 
     const pies = svg.selectAll(".pie")
         .data(data)
@@ -142,7 +142,12 @@ function createTimeDistributionChart(data) {
         .attr("stroke", "black")
         .style("fill", "none")
         .attr("stroke-width", 1)
-        .attr('points', function(d) {
+        .attr('points', function(d, i) {
+            if (i % 2 != 0) {
+                // We only show a label for every second element, so we should not show the lines as well
+                return;
+            }
+
             var posA = arc.centroid(d) // line insertion in the slice
             var posB = outerArc.centroid(d) // line break: we use the other arc generator that has been built only for that
             var posC = outerArc.centroid(d); // Label position = almost the same as posB
@@ -156,8 +161,13 @@ function createTimeDistributionChart(data) {
         .enter()
         .append("text")
         .attr("class", "pie-chart-label")
-        .text( function(d) { return d.data.date } )
-        .attr('transform', function(d) {
+        .text( function(d, i) { 
+            if (i % 2 == 0) {
+                // We only show the label for every second element
+                return d.data.date;
+            }
+        })
+        .attr('transform', function(d, i) {
             var pos = outerArc.centroid(d);
             var midangle = d.startAngle + (d.endAngle - d.startAngle) / 2
             pos[0] = radius * 2.99 * (midangle < Math.PI ? 1 : -1);
