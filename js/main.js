@@ -40,6 +40,8 @@ d3.json("data/positions.json").then(data => {
 
     addHotspotCirclesToMap(visualizationData);
     createTimeDistributionChart(visualizationData);
+    createActivityDataLegend();
+    update();
 });
 
 function addHotspotCirclesToMap(data) {
@@ -179,6 +181,22 @@ function createTimeDistributionChart(data) {
         });
 }
 
+function createActivityDataLegend() {
+    // This legend won't be added on an SVG level, but directly on a leaflet level
+    const legend = L.control({position: "topright"});
+
+    legend.onAdd = (map) => {
+        var div = L.DomUtil.create("div", "legend");
+        div.innerHTML += "<h4>Activity Legend</h4>";
+        div.innerHTML += '<div class="legend-element"><i class="icon" style="background-image: url(../assets/active.png);background-repeat: no-repeat;"></i><span>Active</span></div>';
+        div.innerHTML += '<div class="legend-element"><i class="icon" style="background-image: url(../assets/low-activity.png);background-repeat: no-repeat;"></i><span>Low Activity</span></div>';
+        div.innerHTML += '<div class="legend-element"><i class="icon" style="background-image: url(../assets/rest.png);background-repeat: no-repeat;"></i><span>Rest</span></div>';
+
+        return div;
+    };
+
+    legend.addTo(map);
+}
 
 // Function that update circle position if something change
 function update() {
@@ -197,12 +215,14 @@ function showDetails() {
     d3.selectAll("text").transition(500).style("opacity", 1);
     d3.selectAll(".pie").transition(500).style("opacity", 1);
     d3.selectAll(".activity-image").transition(500).style("opacity", 1);
+    document.getElementsByClassName("legend")[0].style = "opacity: 1";
 }
 
 function hideDetails() {
     d3.selectAll("text").style("opacity", 0);
     d3.selectAll(".pie").style("opacity", 0);
     d3.selectAll(".activity-image").style("opacity", 0);
+    document.getElementsByClassName("legend")[0].style = "opacity: 0";
 }
 
 function updatePositionsAndSizes() {
