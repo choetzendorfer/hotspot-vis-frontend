@@ -1,4 +1,4 @@
-const DETAIL_ZOOM_LEVEL = 13;
+const DETAIL_ZOOM_LEVEL = 18;
 
 // mapid is the id of the div where the map will appear
 var map = L
@@ -9,7 +9,7 @@ var map = L
 L.tileLayer(
     'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
-    maxZoom: 17
+    maxZoom: 19
     }).addTo(map);
 
 // Add a svg layer to the map
@@ -19,7 +19,7 @@ const svg = d3.select("#map").select("svg");
 
 d3.json("data/positions.json").then(data => {
     const visualizationData = data
-    .sort((a, b) => a.minutesSpentInCluster - b.minutesSpentInCluster) //Sort to ensure the hotspot with the highest duration is drawn last 
+    .sort((a, b) => a.minutesSpentInCluster - b.minutesSpentInCluster) //Sort to ensure the hotspot with the highest duration is drawn last
     .map(item => {
         const firstPosition = item.positions[0];
         const timeStatistics = item.timeStatistics.map(entry => {
@@ -28,7 +28,7 @@ d3.json("data/positions.json").then(data => {
                 stayDurationInMinutes: entry.stayDurationInMinutes
             };
         })
-        .slice(0, 7); // TODO: REMOVE AGAIN - we are limiting to 7 entries/days now
+    
         return {
             long: firstPosition.longitude, 
             lat: firstPosition.latitude, 
@@ -45,9 +45,10 @@ d3.json("data/positions.json").then(data => {
 });
 
 function addHotspotCirclesToMap(data) {
+    const size = data.length;
     const colorScale = d3.scaleLinear()
-        .domain([0, d3.max(data.map(marker => marker.stayDuration))])
-        .range(["pink", "red"]);
+        .domain([0, size])
+        .range(["white", "pink", "red"]);
 
     /* Define the data for the circles */
     // The class must be added - see: https://stackoverflow.com/a/26576371
@@ -106,7 +107,10 @@ function addHotspotCirclesToMap(data) {
 
 function createTimeDistributionChart(data) {
     const radius = getCircleRadius();
-    const colorScale = d3.scaleOrdinal(['#4daf4a','#377eb8','#ff7f00','#984ea3','#e41a1c']);
+
+    const colorScale = d3.scaleLinear()
+        .domain([0, 7])
+        .range(["white","pink", "red"]);
 
     const arc = d3.arc()
         .innerRadius(radius * 1.7)
@@ -239,7 +243,7 @@ function updatePositionsAndSizes() {
 }
 
 function getCircleRadius() {
-    return 4 * getCurrentZoomLevel() + 1;
+    return 5 * getCurrentZoomLevel() + 1;
 }
 
 function getCurrentZoomLevel() {
