@@ -21,7 +21,7 @@ d3.json("data/positions.json").then(data => {
     const visualizationData = data
     .sort((a, b) => a.minutesSpentInCluster - b.minutesSpentInCluster) //Sort to ensure the hotspot with the highest duration is drawn last
     .map(item => {
-        const firstPosition = item.positions[0];
+        const centroid = item.centroid;
         const timeStatistics = item.timeStatistics.map(entry => {
             return {
                 date: new Date(entry.date).toDateString(),
@@ -30,8 +30,8 @@ d3.json("data/positions.json").then(data => {
         })
     
         return {
-            long: firstPosition.longitude, 
-            lat: firstPosition.latitude, 
+            long: centroid.longitude, 
+            lat: centroid.latitude, 
             stayDuration: item.minutesSpentInCluster, 
             timeStatistics: timeStatistics,
             dominantActivityLevel: item.dominantActivityLevel,
@@ -109,7 +109,7 @@ function createTimeDistributionChart(data) {
     const radius = getCircleRadius();
 
     const colorScale = d3.scaleLinear()
-        .domain([0, 7])
+        .domain([0, 1]) // if changed to 0, 7 it represents the colors over all hotspots
         .range(["white","pink", "red"]);
 
     const arc = d3.arc()
