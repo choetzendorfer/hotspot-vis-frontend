@@ -40,6 +40,7 @@ d3.json("data/positions.json").then(data => {
 
     addHotspotCirclesToMap(visualizationData);
     createTimeDistributionChart(visualizationData);
+    createColorScaleLegend();
     createActivityDataLegend();
     update();
 });
@@ -209,6 +210,31 @@ function createActivityDataLegend() {
     legend.addTo(map);
 }
 
+function createColorScaleLegend() {
+    // This legend won't be added on an SVG level, but directly on a leaflet level
+    const legend = L.control({position: "topright"});
+    const colorScale = d3.scaleLinear()
+        .domain([-1, 0, 1])
+        .range(["white", "pink", "red"]);
+
+    legend.onAdd = (map) => {
+        var div = L.DomUtil.create("div", "legend");
+        div.innerHTML += "<h4>Stay duration</h4>";
+        div.innerHTML += '<p style="text-align: center; margin-bottom: 0;">Long</p>';
+        div.innerHTML += '<div style="display: flex; flex-flow: column-reverse; align-items: center; width: 143px;">' + d3
+            .ticks(-1, 1, 20)
+            .map(colorScale)
+            .map(t => `<span style="background:${t}; height: 10px; width:50%; display: inline-block;"></span>`)
+            .join('') + '</div>';
+        div.innerHTML += '<p style="text-align: center; margin-top: 0;">Short</p>';
+
+        return div;
+    };
+
+    legend.addTo(map);
+}
+
+
 // Function that update circle position if something change
 function update() {
     updatePositionsAndSizes();
@@ -226,14 +252,14 @@ function showDetails() {
     d3.selectAll("text").transition(500).style("opacity", 1);
     d3.selectAll(".pie").transition(500).style("opacity", 1);
     d3.selectAll(".activity-image").transition(500).style("opacity", 1);
-    document.getElementsByClassName("legend")[0].style = "opacity: 1";
+    document.getElementsByClassName("legend")[1].style = "opacity: 1";
 }
 
 function hideDetails() {
     d3.selectAll("text").style("opacity", 0);
     d3.selectAll(".pie").style("opacity", 0);
     d3.selectAll(".activity-image").style("opacity", 0);
-    document.getElementsByClassName("legend")[0].style = "opacity: 0";
+    document.getElementsByClassName("legend")[1].style = "opacity: 0";
 }
 
 function updatePositionsAndSizes() {
