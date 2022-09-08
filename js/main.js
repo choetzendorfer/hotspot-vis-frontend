@@ -113,8 +113,8 @@ function createTimeDistributionChart(data) {
         .range(["white","pink", "red"]);
 
     const arc = d3.arc()
-        .innerRadius(radius * 1.7)
-        .outerRadius(radius * 2.5);
+        .innerRadius(radius * 2.7)
+        .outerRadius(radius * 3.5);
 
     var outerArc = d3.arc()
         .innerRadius(radius * 2.9)
@@ -138,7 +138,14 @@ function createTimeDistributionChart(data) {
         .attr("d", arc)
         .attr("stroke", "black")
         .attr("stroke-width", 0.7)
-        .style("fill", (d, i) => colorScale(d.data.stayDurationInMinutes));
+        .style("fill", (d, i) => {
+            const colorValue = colorScale(d.data.stayDurationInMinutes)
+            if (colorValue == "rgb(255, 255, 255)") {
+                return "rgba(255, 255, 255, 0.2)";
+            } else {
+                return colorValue;
+            }
+        });
 
     pies.selectAll(".pie-chart-label-line")
         .data(data => pie(data.timeStatistics))
