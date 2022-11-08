@@ -17,7 +17,7 @@ L.svg().addTo(map);
 
 const svg = d3.select("#map").select("svg");
 
-d3.json("data/positions.json").then(data => {
+d3.json(`data/${getDataSetFileName()}`).then(data => {
     const visualizationData = data
     .sort((a, b) => a.minutesSpentInCluster - b.minutesSpentInCluster) //Sort to ensure the hotspot with the highest duration is drawn last
     .map(item => {
@@ -319,6 +319,16 @@ function getCircleRadius() {
 
 function getCurrentZoomLevel() {
     return map._zoom;
+}
+
+function getDataSetFileName() {
+    const pathName = window.location.pathname;
+    
+    if (pathName === '/') {
+        return 'positions.json';
+    } else {
+        return `${pathName.split('.html')[0].split('/')[1]}.json`;
+    }
 }
 
 // If the user change the map (zoom or drag), I update circle position:
