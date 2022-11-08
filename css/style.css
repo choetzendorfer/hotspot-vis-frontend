@@ -47,3 +47,22 @@ tspan.duration-title {
     background-size: 20px;
     background-color: rgba(255, 255, 255, 1);
   }
+
+  .title-container {
+    width: 98%;
+    position: fixed !important;
+    display: flex;
+    justify-content: center;
+  }
+
+  .title-container .title {
+    text-align: center;
+    background: rgba(255,255,255,0.75);
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 5px;
+  }
+
+  .title-container .title h1 {
+    margin-bottom: -20px;
+  }
