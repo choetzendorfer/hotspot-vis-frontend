@@ -107,9 +107,9 @@ function addHotspotCirclesToMap(data) {
     circleGroup.append("image")
         .attr("class", "activity-image")
         .attr("xlink:href", data => {
-            if (data.dominantActivityLevel == 0) {
+            if (data.dominantActivityLevel == "REST") {
                 return "../assets/rest.png";
-            } else if (data.dominantActivityLevel == 1) {
+            } else if (data.dominantActivityLevel == "LOW_ACTIVITY") {
                 return "../assets/low-activity.png";
             } else {
                 return "../assets/active.png";

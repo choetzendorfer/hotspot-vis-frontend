@@ -4,7 +4,7 @@
          "latitude":48.60337044544562,
          "longitude":13.919346358871021
       },
-      "dominantActivityLevel":0,
+      "dominantActivityLevel":"REST",
       "timeStatistics":[
          {
             "date":"2022-08-21T00:00:00Z",
@@ -41,7 +41,7 @@
          "latitude":48.601398999999994,
          "longitude":13.920145083333333
       },
-      "dominantActivityLevel":0,
+      "dominantActivityLevel":"ACTIVE",
       "timeStatistics":[
          {
             "date":"2022-08-21T00:00:00Z",
@@ -70,6 +70,43 @@
          {
             "date":"2022-08-27T00:00:00Z",
             "stayDurationInMinutes":5
+         }
+      ]
+   },
+   {
+      "centroid":{
+         "latitude":48.6013448947369,
+         "longitude":13.91869926315787
+      },
+      "dominantActivityLevel":"LOW_ACTIVITY",
+      "timeStatistics":[
+         {
+            "date":"2022-08-21T00:00:00Z",
+            "stayDurationInMinutes":0
+         },
+         {
+            "date":"2022-08-22T00:00:00Z",
+            "stayDurationInMinutes":2
+         },
+         {
+            "date":"2022-08-23T00:00:00Z",
+            "stayDurationInMinutes":0
+         },
+         {
+            "date":"2022-08-24T00:00:00Z",
+            "stayDurationInMinutes":0
+         },
+         {
+            "date":"2022-08-25T00:00:00Z",
+            "stayDurationInMinutes":0
+         },
+         {
+            "date":"2022-08-26T00:00:00Z",
+            "stayDurationInMinutes":7
+         },
+         {
+            "date":"2022-08-27T00:00:00Z",
+            "stayDurationInMinutes":0
          }
       ]
    }
