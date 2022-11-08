@@ -81,7 +81,23 @@ function addHotspotCirclesToMap(data) {
         .attr("class", "duration-title")
         .attr("x", 0)
         .attr("dy", "-0.9em")
-        .text(data => `~${data.stayDuration} min`);
+        .text(data => {
+            const stayDurationInMinutes = data.stayDuration;
+            if (stayDurationInMinutes > 60) {
+                const hours = Math.floor(stayDurationInMinutes / 60);
+                const minutes = stayDurationInMinutes % 60;
+
+                if (hours > 24) {
+                    const days = Math.floor(hours / 24);
+                    const remainingHours = hours % 24;
+
+                    return `~${days}d ${remainingHours}h ${minutes}min`;
+                }
+
+                return `~${hours}h ${minutes}min`;
+            }
+            return `~${stayDurationInMinutes}min`;
+        });
 
     text.append("tspan")
         .attr("x", 0)
