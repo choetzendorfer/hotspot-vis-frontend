@@ -19,7 +19,6 @@ const svg = d3.select("#map").select("svg");
 
 d3.json(`data/${getDataSetFileName()}`).then(data => {
     const visualizationData = data
-    .sort((a, b) => a.minutesSpentInCluster - b.minutesSpentInCluster) //Sort to ensure the hotspot with the highest duration is drawn last
     .map(item => {
         const centroid = item.centroid;
         const timeStatistics = item.timeStatistics.map(entry => {
@@ -28,15 +27,16 @@ d3.json(`data/${getDataSetFileName()}`).then(data => {
                 stayDurationInMinutes: entry.stayDurationInMinutes
             };
         })
-    
+
         return {
             long: centroid.longitude, 
             lat: centroid.latitude, 
-            stayDuration: item.minutesSpentInCluster, 
+            stayDurationInMinutes: timeStatistics.map(i => i.stayDurationInMinutes).reduce((a, b) => a + b, 0), 
             timeStatistics: timeStatistics,
             dominantActivityLevel: item.dominantActivityLevel,
         };
-    });
+    })
+    .sort((a, b) => a.stayDurationInMinutes - b.stayDurationInMinutes); //Sort to ensure the hotspot with the highest duration is drawn last;
 
     addHotspotCirclesToMap(visualizationData);
     createTimeDistributionChart(visualizationData);
@@ -47,9 +47,8 @@ d3.json(`data/${getDataSetFileName()}`).then(data => {
 });
 
 function addHotspotCirclesToMap(data) {
-    const size = data.length;
     const colorScale = d3.scaleLinear()
-        .domain([0, size])
+        .domain([0, 7])
         .range(["white", "pink", "red"]);
 
     /* Define the data for the circles */
@@ -68,7 +67,7 @@ function addHotspotCirclesToMap(data) {
     circleGroup.append("circle")
         .attr("r", getCircleRadius())
         .attr("stroke","black")
-        .attr("fill", data => colorScale(data.stayDuration))
+        .attr("fill", data => colorScale(data.stayDurationInMinutes))
         .attr("fill-opacity", .8);
 
     /* Create the text for each block */
@@ -82,7 +81,7 @@ function addHotspotCirclesToMap(data) {
         .attr("x", 0)
         .attr("dy", "-0.9em")
         .text(data => {
-            const stayDurationInMinutes = data.stayDuration;
+            const stayDurationInMinutes = data.stayDurationInMinutes;
             if (stayDurationInMinutes > 60) {
                 const hours = Math.floor(stayDurationInMinutes / 60);
                 const minutes = stayDurationInMinutes % 60;
