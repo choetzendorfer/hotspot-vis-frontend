@@ -41,6 +41,7 @@ d3.json("data/positions.json").then(data => {
     addHotspotCirclesToMap(visualizationData);
     createTimeDistributionChart(visualizationData);
     createColorScaleLegend();
+    createTitle(visualizationData);
     createActivityDataLegend();
     update();
 });
@@ -208,6 +209,25 @@ function createActivityDataLegend() {
     };
 
     legend.addTo(map);
+}
+
+function createTitle(visualizationData) {
+    const title = L.control({position: "topleft"});
+    const timeStatistics = visualizationData[0].timeStatistics;
+    const startDate = timeStatistics[0].date;
+    const endDate = timeStatistics[timeStatistics.length - 1].date;
+
+    title.onAdd = (map) => {
+        var div = L.DomUtil.create("div", "title-container");
+        div.innerHTML += `<div class="title">
+            <h1>Position Hotspots</h1>
+            <h2>${startDate} - ${endDate}</h2>
+        </div>`;
+
+        return div;
+    };
+
+    title.addTo(map);
 }
 
 function createColorScaleLegend() {
