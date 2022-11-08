@@ -116,11 +116,11 @@ function addHotspotCirclesToMap(data) {
                 return "../assets/active.png";
             }
         })
-        .attr("x", -16)
-        .attr("y", "1.9em")
+        .attr("x", -18)
+        .attr("y", "2em")
         .attr("opacity", 0)
-        .attr("width", 32)
-        .attr("height", 32);
+        .attr("width", 38)
+        .attr("height", 38);
 }
 
 function createTimeDistributionChart(data) {
