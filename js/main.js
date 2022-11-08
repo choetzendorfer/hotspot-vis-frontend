@@ -289,7 +289,7 @@ function showDetails() {
     d3.selectAll(".pie").transition(500).style("opacity", 1);
     d3.selectAll(".activity-image").transition(500).style("opacity", 1);
     document.getElementsByClassName("legend")[1].style = "opacity: 1";
-    document.getElementsByClassName("title")[0].getElementsByTagName("h1")[0].innerHTML = "Position Hotspots + Time Distribution";
+    document.getElementsByClassName("title")[0].getElementsByTagName("h1")[0].innerHTML = "Position Hotspots + Time Distribution and Activity";
 }
 
 function hideDetails() {
